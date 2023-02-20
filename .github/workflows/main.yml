@@ -1,0 +1,23 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: ['feat-pdf']
+  pull_request:
+    branches: ['feat-pdf']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO_URL: ${{ secrets.DOCKER_REPO_URL }}
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        run: |
+          docker build . --file Dockerfile_ai --build-arg ALIYUN=none --tag ${DOCKER_REPO_URL}/${DOCKER_USER}/wechatbot:latest
+          echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REPO_URL} --username ${DOCKER_USER} --password-stdin
+          docker push ${DOCKER_REPO_URL}/${DOCKER_USER}/wechatbot:latest
